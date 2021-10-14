@@ -4,6 +4,7 @@ import (
 	"flag"
 	"golang-crontab/master"
 	"runtime"
+	"time"
 )
 
 var configFile string
@@ -39,5 +40,9 @@ func main() {
 		panic(err)
 	}
 
-	return
+	for {
+		time.Sleep(1 * time.Second)
+	}
+
+	//return
 }

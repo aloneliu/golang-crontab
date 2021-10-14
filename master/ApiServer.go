@@ -55,4 +55,14 @@ func handleJobSave(w http.ResponseWriter, r *http.Request) {
 		fmt.Println(`ParseForm err: `, err)
 	}
 
+	old, err := G_jobMgr.SaveJob(&job)
+	if err != nil {
+		response, _ := common.BuildResponse(1, err.Error(), old)
+		w.Write(response)
+		return
+	}
+
+	response, _ := common.BuildResponse(0, "ok", old)
+	w.Write(response)
+	return
 }

@@ -1,6 +1,8 @@
 package master
 
 import (
+	"context"
+	"encoding/json"
 	clientv3 "go.etcd.io/etcd/client/v3"
 	"golang-crontab/common"
 	"time"
@@ -34,7 +36,26 @@ func InitJobMgr() error {
 	return nil
 }
 
-func (this *JobMgr) SaveJob(job *common.Job) (old *common.Job, err error) {
+func (jobMgr *JobMgr) SaveJob(job *common.Job) (old *common.Job, err error) {
 
-	return nil, err
+	jobKey := `/cron/jobs/` + job.Name
+	jobVal, err := json.Marshal(job)
+	if err != nil {
+		return nil, err
+	}
+
+	response, err := jobMgr.kv.Put(context.TODO(), jobKey, string(jobVal), clientv3.WithPrevKV())
+	if err != nil {
+		return nil, err
+	}
+
+	oldJob := common.Job{}
+	if response.PrevKv != nil {
+		err := json.Unmarshal(response.PrevKv.Value, &oldJob)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return &oldJob, err
 }
