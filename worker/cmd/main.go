@@ -30,6 +30,11 @@ func main() {
 		panic(err)
 	}
 
+	// 服务注册
+	if err = worker.InitRegister(); err != nil {
+		panic(err)
+	}
+
 	// 启动日志协程
 	if err = worker.InitLogSink(); err != nil {
 		panic(err)
