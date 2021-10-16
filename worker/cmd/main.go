@@ -2,7 +2,7 @@ package main
 
 import (
 	"flag"
-	"golang-crontab/master"
+	"golang-crontab/worker"
 	"runtime"
 	"time"
 )
@@ -11,7 +11,7 @@ var configFile string
 
 func initArgs() {
 
-	flag.StringVar(&configFile, "config", "./master.json", "配置文件位置")
+	flag.StringVar(&configFile, "config", "./worker.json", "配置文件位置")
 	flag.Parse()
 }
 
@@ -25,28 +25,27 @@ func main() {
 	initEnv()
 
 	// 加载配置
-	err := master.InitConfig(configFile)
+	err := worker.InitConfig(configFile)
 	if err != nil {
 		panic(err)
 	}
 
-	// 初始化服务发现模块
-	if err = master.InitWorkerMgr(); err != nil {
+	// 启动日志协程
+	if err = worker.InitLogSink(); err != nil {
 		panic(err)
 	}
 
-	// 日志管理器
-	if err = master.InitLogMgr(); err != nil {
+	// 启动执行器
+	if err = worker.InitExecutor(); err != nil {
 		panic(err)
 	}
+
+	// 启动调度器
+	worker.InitScheduler()
 
 	// 任务管理器
-	err = master.InitJobMgr()
+	err = worker.InitJobMgr()
 	if err != nil {
-		panic(err)
-	}
-
-	if err := master.InitApiServer(); err != nil {
 		panic(err)
 	}
 
